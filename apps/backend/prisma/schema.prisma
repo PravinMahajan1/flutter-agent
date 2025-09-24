@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Using string fields for role and status due to SQLite connector limitations
+
+model User {
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  email         String   @unique
+  passwordHash  String
+  fullName      String
+  role          String
+  enrollmentNo  String?  @unique
+  teacherCode   String?  @unique
+  leaves        LeaveApplication[] @relation("LeaveStudent")
+  reviewedLeaves LeaveApplication[] @relation("LeaveReviewer")
+  assignments   AssignmentSubmission[]
+  activities    ActivityParticipant[]
+  attendance    Attendance[]
+  enrollments   Enrollment[]
+  taughtSubjects Subject[] @relation("SubjectTeacher")
+}
+
+model Subject {
+  id           String   @id @default(cuid())
+  name         String
+  code         String   @unique
+  academicYear String
+  division     String
+  teacher      User?    @relation("SubjectTeacher", fields: [teacherId], references: [id])
+  teacherId    String?
+  enrollments  Enrollment[]
+  sessions     AttendanceSession[]
+  assignments  Assignment[]
+}
+
+model Enrollment {
+  id        String  @id @default(cuid())
+  student   User    @relation(fields: [studentId], references: [id])
+  studentId String
+  subject   Subject @relation(fields: [subjectId], references: [id])
+  subjectId String
+  @@unique([studentId, subjectId])
+}
+
+model AttendanceSession {
+  id            String   @id @default(cuid())
+  subject       Subject  @relation(fields: [subjectId], references: [id])
+  subjectId     String
+  type          String   // lecture | lab | library
+  labNumber     Int?
+  batch         String?
+  qrToken       String   @unique
+  startsAt      DateTime
+  expiresAt     DateTime
+  attendances   Attendance[]
+}
+
+model Attendance {
+  id           String            @id @default(cuid())
+  student      User              @relation(fields: [studentId], references: [id])
+  studentId    String
+  session      AttendanceSession @relation(fields: [sessionId], references: [id])
+  sessionId    String
+  markedAt     DateTime          @default(now())
+  @@unique([studentId, sessionId])
+}
+
+model Assignment {
+  id         String   @id @default(cuid())
+  subject    Subject  @relation(fields: [subjectId], references: [id])
+  subjectId  String
+  title      String
+  description String?
+  dueAt      DateTime
+  submissions AssignmentSubmission[]
+}
+
+model AssignmentSubmission {
+  id           String   @id @default(cuid())
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  assignmentId String
+  student      User     @relation(fields: [studentId], references: [id])
+  studentId    String
+  filePath     String
+  submittedAt  DateTime @default(now())
+  @@unique([assignmentId, studentId])
+}
+
+model Activity {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  certificateEnabled Boolean @default(false)
+  participants ActivityParticipant[]
+}
+
+model ActivityParticipant {
+  id          String   @id @default(cuid())
+  activity    Activity @relation(fields: [activityId], references: [id])
+  activityId  String
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  certificatePath String?
+  @@unique([activityId, userId])
+}
+
+model LeaveApplication {
+  id          String   @id @default(cuid())
+  student     User     @relation("LeaveStudent", fields: [studentId], references: [id])
+  studentId   String
+  fromDate    DateTime
+  toDate      DateTime
+  reason      String
+  attachmentPath String?
+  status      String @default("PENDING")
+  reviewedBy  User?    @relation("LeaveReviewer", fields: [reviewerId], references: [id])
+  reviewerId  String?
+  reviewedAt  DateTime?
+}
+
+

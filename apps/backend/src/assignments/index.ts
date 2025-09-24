@@ -63,3 +63,15 @@ router.get('/:id/submissions.zip', requireRole(['TEACHER', 'ADMIN']), async (req
   await archive.finalize();
 });
 
+router.get('/', requireRole(['STUDENT', 'TEACHER', 'ADMIN']), async (req, res) => {
+  const subjectId = req.query.subjectId as string | undefined;
+  const page = Number(req.query.page ?? 1);
+  const pageSize = Number(req.query.pageSize ?? 20);
+  const where = { subjectId: subjectId ?? undefined } as any;
+  const [total, rows] = await Promise.all([
+    prisma.assignment.count({ where }),
+    prisma.assignment.findMany({ where, orderBy: { dueAt: 'desc' }, skip: (page - 1) * pageSize, take: pageSize }),
+  ]);
+  res.json({ total, page, pageSize, rows });
+});
+

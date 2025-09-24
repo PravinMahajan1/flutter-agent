@@ -23,6 +23,11 @@ router.post('/', requireRole(['TEACHER', 'ADMIN']), async (req, res) => {
   res.json(activity);
 });
 
+router.get('/', requireRole(['STUDENT', 'TEACHER', 'ADMIN']), async (_req, res) => {
+  const all = await prisma.activity.findMany({ orderBy: { title: 'asc' } });
+  res.json(all);
+});
+
 router.post('/:id/join', requireRole(['STUDENT']), async (req: any, res) => {
   const { id } = req.params;
   try {

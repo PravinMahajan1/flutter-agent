@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../../widgets/student_home.dart';
 import '../../widgets/qr_scan_page.dart';
 import '../../widgets/results_page.dart';
+import '../../widgets/assignments_page.dart';
+import '../../widgets/activities_page.dart';
+import '../../widgets/leaves_page.dart';
 
 class StudentShell extends StatefulWidget {
   const StudentShell({super.key});
@@ -11,7 +14,7 @@ class StudentShell extends StatefulWidget {
 
 class _StudentShellState extends State<StudentShell> {
   int _index = 0;
-  final pages = const [StudentHome(), QrScanPage(), ResultsPage()];
+  final pages = const [StudentHome(), QrScanPage(), AssignmentsPage(), ResultsPage(), ActivitiesPage(), LeavesPage()];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,7 +26,10 @@ class _StudentShellState extends State<StudentShell> {
         destinations: const [
           NavigationDestination(icon: Icon(Icons.dashboard_outlined), selectedIcon: Icon(Icons.dashboard), label: 'Home'),
           NavigationDestination(icon: Icon(Icons.qr_code_scanner), label: 'Scan'),
+          NavigationDestination(icon: Icon(Icons.assignment_outlined), selectedIcon: Icon(Icons.assignment), label: 'Assignments'),
           NavigationDestination(icon: Icon(Icons.workspace_premium_outlined), selectedIcon: Icon(Icons.workspace_premium), label: 'Results'),
+          NavigationDestination(icon: Icon(Icons.event_available_outlined), selectedIcon: Icon(Icons.event_available), label: 'Activities'),
+          NavigationDestination(icon: Icon(Icons.beach_access_outlined), selectedIcon: Icon(Icons.beach_access), label: 'Leaves'),
         ],
       ),
     );

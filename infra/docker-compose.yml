@@ -1,0 +1,22 @@
+version: '3.9'
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: vision2_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: vision
+      POSTGRES_PASSWORD: vision_password
+      POSTGRES_DB: vision
+    ports:
+      - "5432:5432"
+    volumes:
+      - vision2_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vision -d vision"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+volumes:
+  vision2_pgdata:
+

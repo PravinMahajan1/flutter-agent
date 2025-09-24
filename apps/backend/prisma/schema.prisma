@@ -26,6 +26,8 @@ model User {
   attendance    Attendance[]
   enrollments   Enrollment[]
   taughtSubjects Subject[] @relation("SubjectTeacher")
+  allowedDeviceId String?
+  results       Result[]
 }
 
 model Subject {
@@ -39,6 +41,7 @@ model Subject {
   enrollments  Enrollment[]
   sessions     AttendanceSession[]
   assignments  Assignment[]
+  results      Result[]
 }
 
 model Enrollment {
@@ -61,6 +64,9 @@ model AttendanceSession {
   startsAt      DateTime
   expiresAt     DateTime
   attendances   Attendance[]
+  latitude      Float?
+  longitude     Float?
+  radiusMeters  Int?
 }
 
 model Attendance {
@@ -70,7 +76,21 @@ model Attendance {
   session      AttendanceSession @relation(fields: [sessionId], references: [id])
   sessionId    String
   markedAt     DateTime          @default(now())
+  deviceId     String?
   @@unique([studentId, sessionId])
+}
+
+model Result {
+  id           String   @id @default(cuid())
+  student      User     @relation(fields: [studentId], references: [id])
+  studentId    String
+  subject      Subject  @relation(fields: [subjectId], references: [id])
+  subjectId    String
+  examType     String   // e.g., MID, FINAL, PRACTICAL
+  marksObtained Float
+  totalMarks   Float
+  grade        String?
+  createdAt    DateTime @default(now())
 }
 
 model Assignment {
